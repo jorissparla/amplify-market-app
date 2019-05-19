@@ -1,17 +1,74 @@
-import React from "react";
-import Amplify from "aws-amplify";
-import { withAuthenticator, AmplifyTheme } from "aws-amplify-react"; // or 'aws-amplify-react-native';
+import React, { useState, useEffect } from "react";
+import Amplify, { Auth, Hub } from "aws-amplify";
+import { Authenticator, AmplifyTheme } from "aws-amplify-react";
+import { BrowserRouter as Router, Route } from "react-router-dom";
 import awsexports from "./aws-exports";
+import HomePage from "./pages/HomePage";
+import MarketPage from "./pages/MarketPage";
+import ProfilePage from "./pages/ProfilePage";
+import Navbar from "./components/Navbar";
+
 import "./App.css";
-
 Amplify.configure(awsexports);
-class App extends React.Component {
-  state = {};
 
-  render() {
-    return <div>App</div>;
-  }
-}
+const App = () => {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    getUserData();
+  }, []);
+
+  const onHubCapsule = capsule => {
+    switch (capsule.payload.event) {
+      case "signIn":
+        console.log("signed in");
+        getUserData();
+        break;
+      case "signUp":
+        console.log("signed up");
+        break;
+      case "signOut":
+        console.log("signed out");
+        setUser(null);
+        break;
+      default:
+        return;
+    }
+  };
+  Hub.listen("auth", onHubCapsule);
+  const getUserData = async () => {
+    const user = await Auth.currentAuthenticatedUser();
+    user ? setUser(user) : setUser(null);
+  };
+
+  const handleSignout = async () => {
+    try {
+      await Auth.signOut();
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  return !user ? (
+    <Authenticator theme={theme} />
+  ) : (
+    <Router>
+      <>
+        <Navbar user={user} handleSignout={handleSignout} />
+        <div className="app-container">
+          <Route exact path="/" component={HomePage} />
+          <Route exact path="/profile" component={ProfilePage} />
+          <Route
+            exact
+            path="/markets/:marketId"
+            component={({ match }) => <MarketPage marketId={match.params.marketId} />}
+          />
+        </div>
+      </>
+      Application
+    </Router>
+  );
+};
 
 const theme = {
   ...AmplifyTheme,
@@ -30,4 +87,5 @@ const theme = {
     backgroundColor: "var(--light-blue)"
   }
 };
-export default withAuthenticator(App, true, [], null, theme);
+
+export default App;
