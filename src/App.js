@@ -7,8 +7,10 @@ import HomePage from "./pages/HomePage";
 import MarketPage from "./pages/MarketPage";
 import ProfilePage from "./pages/ProfilePage";
 import Navbar from "./components/Navbar";
-
 import "./App.css";
+
+export const UserContext = React.createContext();
+
 Amplify.configure(awsexports);
 
 const App = () => {
@@ -52,21 +54,23 @@ const App = () => {
   return !user ? (
     <Authenticator theme={theme} />
   ) : (
-    <Router>
-      <>
-        <Navbar user={user} handleSignout={handleSignout} />
-        <div className="app-container">
-          <Route exact path="/" component={HomePage} />
-          <Route exact path="/profile" component={ProfilePage} />
-          <Route
-            exact
-            path="/markets/:marketId"
-            component={({ match }) => <MarketPage marketId={match.params.marketId} />}
-          />
-        </div>
-      </>
-      Application
-    </Router>
+    <UserContext.Provider value={{ user }}>
+      <Router>
+        <>
+          <Navbar user={user} handleSignout={handleSignout} />
+          <div className="app-container">
+            <Route exact path="/" component={HomePage} />
+            <Route exact path="/profile" component={ProfilePage} />
+            <Route
+              exact
+              path="/markets/:marketId"
+              component={({ match }) => <MarketPage marketId={match.params.marketId} />}
+            />
+          </div>
+        </>
+        Application
+      </Router>
+    </UserContext.Provider>
   );
 };
 
