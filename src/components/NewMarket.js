@@ -6,7 +6,7 @@ import { Form, Button, Dialog, Input, Select, Notification } from 'element-react
 import { createMarket } from "../graphql/mutations";
 import { UserContext } from "../App";
 
-const NewMarket = () => {
+const NewMarket = props => {
   const tagsList = ["Arts", "Technology", "Crafts", "Sports", "Entertainment"];
   const [addMarketPlaceVisible, setVisible] = React.useState(false);
   const [name, setName] = React.useState("");
@@ -44,6 +44,23 @@ const NewMarket = () => {
           Create your Market place
           <Button type="text" icon="edit" className="market-title-button" onClick={() => setVisible(true)} />
         </h1>
+
+        <Form inline={true} onSubmit={props.handleSearch}>
+          <Form.Item>
+            <Input
+              placeholder="Search Markets..."
+              icon="circle-cross"
+              value={props.searchTerm}
+              onChange={props.handleSearchChange}
+              onIconClick={props.handleClearSearch}
+            />
+          </Form.Item>
+          <Form.Item>
+            <Button type="info" icon="search" onClick={props.handleSearch}>
+              Search
+            </Button>
+          </Form.Item>
+        </Form>
       </div>
       <Dialog
         title="Create new Market"
