@@ -64,11 +64,10 @@ const App = () => {
             <Route
               exact
               path="/markets/:marketId"
-              component={({ match }) => <MarketPage marketId={match.params.marketId} />}
+              component={({ match }) => <MarketPage marketId={match.params.marketId} user={user} />}
             />
           </div>
         </>
-        Application
       </Router>
     </UserContext.Provider>
   );
